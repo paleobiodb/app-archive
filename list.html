@@ -18,35 +18,35 @@
 
   <h1 class="uk-heading-line uk-text-center">Data Archives</h1>
 
-  <div class="uk-section uk-section-muted">
-    <div class="uk-container">
-      <ul uk-accordion id="archiveList"></ul>
-	  </div>
-  </div>
- </body>
+  <ul class="uk-list uk-list-striped" id="archiveList">
+
+</body>
 
 <script type="text/javascript">
   $(document).ready(function(){
     $.ajax( {
-      url: "http://localhost:5000/list",
+      url: "https://training.paleobiodb.org/archives/list",
       dataType: "json"
     })
     .done (function (data) {
       for (var rec in data) {
         var item;
-        item = '<li><h3 class="uk-accordion-title">';
-        item += data[rec]['title'] + '</h3>';
-        item += '<div class="uk-accordion-content">';
-        item += '<b>DOI: </b>' + data[rec]['doi'] + '<br>';
-        item += '<b>Date: </b>' + data[rec]['creation_date'] + '<br>';
-        item += '<b>Creator: </b>' + data[rec]['username'] + '<br>';
-        item += '<b>Description : </b><p>' + data[rec]['description'] + '</p>';
-        item += '<button class="uk-button uk-button-primary">Download</button>';
-        item += '<button class="uk-button uk-button-default"><a href="' + data[rec]['uri'] + '">Update</button>';
-        item += '</div></li>';
-        
+
+        item = "<li><span style='float:left;'>";
+        item += "<a href='https://training.paleobiodb.org/classic/app/archive/view?id=";
+        item += data[rec]['archive_no'] + "'>";
+        item += "Archive " + data[rec]['archive_no'];
+        item += "</a>";
+        item += ": <b>" + data[rec]['title'] + "</b>";
+
+        if (data[rec]['doi']) {
+            item += "[" + data[rec]['doi'] + "]";
+        }
+
+        item += "</span><div style='float:right;'>";
+        item += "<i> (" + data[rec]['authors'] + ")</i></li>";
+
         $('#archiveList').append(item);
-        console.log(data[rec])
       }
     });
   })

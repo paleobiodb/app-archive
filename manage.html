@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PBDB Data Archive Manager</title>
+  <!-- UIkit CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
+	<!-- UIkit JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
+  <!-- JQuery -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"></script>
+</head>
+
+<body>
+    <h1 class="uk-heading-line uk-text-center">Manage Data Archives</h1>
+
+    <div id="main">
+        <center>
+        <form id="form" method="post">
+            <input type="text" name="archive_no" id="archive_no"
+            placeholder="Archive number"><br>
+            <input type="text" name="doi" id="doi" placeholder="DOI">
+        </form>
+        <center>
+            <br><button id="btn">Update metadata</button>
+    </div>
+</body>
+
+
+<script>
+    function clearForm(form) {
+      // iterate over all of the inputs for the form
+      // element that was passed in
+      $(':input', form).each(function() {
+        var type = this.type;
+        var tag = this.tagName.toLowerCase(); // normalize case
+        // it's ok to reset the value attr of text inputs,
+        // password inputs, and textareas
+        if (type == 'text' || type == 'password' || tag == 'textarea')
+          this.value = "";
+        // checkboxes and radios need to have their checked state cleared
+        // but should *not* have their 'value' changed
+        else if (type == 'checkbox' || type == 'radio')
+          this.checked = false;
+        // select elements need to have their 'selectedIndex' property set to -1
+        // (this works for both single and multiple select elements)
+        else if (tag == 'select')
+          this.selectedIndex = -1;
+      });
+    };
+
+    $(document).ready(function(){
+        $("#btn").click(function(){
+            var archive_no = $("#archive_no").val();
+            var doi = $("#doi").val();
+            var url = "https://training.paleobiodb.org/archives/update/" + archive_no;
+
+            var updates = {doi: doi};
+            var payload = JSON.stringify(updates)
+
+            if(archive_no=='')
+            {
+                alert("An archive number must be specified");
+            }
+
+            else{
+                $.ajax({
+                    url: 'https://training.paleobiodb.org/archives/update/' + archive_no,
+                    type: 'POST',
+                    data: payload,
+                    contentType: 'application/json; charset=utf-8',
+                    dataType: 'json',
+                    async: false,
+                    success: function(data) {
+                        clearForm(form);
+                        alert('Archive metadata updated');                
+                    },
+                    error: function (xhr, textStatus, error) {
+                        alert('An error occurred (' + textStatus + '-' + error + ')');                
+                    }
+                });
+            }
+        });
+    });
+</script>
+</html>
