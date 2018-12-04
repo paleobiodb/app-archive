@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PBDB Data Archive</title>
+  <!-- UIkit CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
+	<!-- UIkit JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
+  <!-- JQuery -->
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"></script>
+</head>
+
+<body>
+    <div class="uk-padding uk-width-1-8@s">
+        <ul class="uk-list" id="archiveDetail">
+    </div>
+
+<center>
+<a class="uk-link-muted"
+    href="https://training.paleobiodb.org/classic/app/archive/list"> Return</a> to archive list</a>
+</center>
+
+</body>
+
+<script language="JavaScript">
+  $(document).ready(function(){
+      var parameters = location.search.substring(1).split("&");
+      var temp = parameters[0].split("=");
+
+      var param_name = temp[0];
+      var param_value = unescape(temp[1]);
+      
+      if ( param_name != 'id' && param_name != 'doi' )
+      {
+	  var error_text = "<h3 class='uk-card-title'>Bad parameter '" + param_name + "'</h3>";
+	  
+	  $('#archiveDetail').append(error_text);
+	  return;
+      }
+      
+      $.ajax( {
+	  url: "https://training.paleobiodb.org/data1.2/archives/single.json?" + param_name + '=' + param_value,
+	  dataType: "json"
+      })
+	  .success (function (data) {
+	      var r = data.records;
+	      for (var rec in r) {
+		  var oid = r[rec]['oid'];
+		  if ( ! oid )
+		      next;
+		  
+		  var archive_no = oid.slice(4);
+		  var uri = r[rec]['uri'];
+		  
+		  var apiCall = "https://training.paleobiodb.org" + uri;
+		  var item;
+		  
+		  item = "<h3 class='uk-card-title'>" + r[rec]['tit'] + "</h3>";
+		  item += "<p><b>Description: </b>" + r[rec]['dsc'] + "</p>";
+		  item += "<p><b>Archive creator: </b>" + r[rec]['oau'] + "</p>";
+		  item += "<p><b>DOI: </b>" + r[rec]['doi'] + "</p>";
+		  if ( r[rec]['dcr'] )
+		      item += "<p><b>Creation date: </b>" + r[rec]['dcr'] + "</p>";
+		  item += "<p><b>API query string: </b>" + uri + "</p>";
+		  item += "<p><b>Archive Number: </b>" + r[rec]['oid'] + "</p>";
+		  
+		  item += "<p uk-margin><a class='uk-button uk-button-primary'";
+		  item += "href='https://training.paleobiodb.org/archives/retrieve/";
+		  item += archive_no + "'>Download Original Archive</a>";
+		  
+		  item += "<p uk-margin><a class='uk-button uk-button-default'";
+		  item += "href='" + apiCall + "'>Generate Updated Dataset</a>";
+		  
+		  $('#archiveDetail').append(item);
+	      }
+	  })
+	  .error (function (data) {
+	      var error_text = "<h3 class='uk-card-title'>Not Found</h3>";
+	      $('#archiveDetail').append(error_text)
+	  })
+  });
+</script>
