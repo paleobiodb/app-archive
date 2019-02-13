@@ -24,42 +24,31 @@
 
 <script type="text/javascript">
   $(document).ready(function(){
+
     $.ajax( {
-      url: "https://training.paleobiodb.org/data1.2/archives/list.json?enterer=me",
+      url: "/archives/list",
       dataType: "json"
     })
     .done (function (data) {
-	var r = data.records || [ ];
-        for (var rec in r) {
-	    var item;
-	    
-	    var oid = r[rec]['oid'];
-	    var title = r[rec]['tit'] || '<i>Untitled</i>';
-	    var doi = r[rec]['doi'] || '';
-	    var authors = r[rec]['oau'] || 'none';
-	    var uri = r[rec]['uri'] || '';
-	    
-	    if ( oid )
-	    {
-		var archive_no = oid.slice(4);
-		
-		item = "<li><span style='float:left;'>";
-		item += "<a href='https://training.paleobiodb.org/classic/app/archive/view?id=";
-		item += oid + "'>";
-		item += "Archive " + archive_no;
-		item += "</a>";
-		item += ": <b>" + title + "</b>";
-		if (doi) {
-		    item += "  [" + doi + "]";
-		}
-		
-		item += "</span><div style='float:right;'>";
-		item += "<i> (" + authors + ")</i></li>";
-		    <!-- item += "<br>" + r[rec]['uri_base'] + "</li>"; -->
-		    
-		$('#archiveList').append(item);
-	    }
-	}
+      for (var rec in data) {
+        var item;
+
+        item = "<li><span style='float:left;'>";
+        item += "<a href='/classic/app/archive/view?id=";
+        item += data[rec]['archive_no'] + "'>";
+        item += "Archive " + data[rec]['archive_no'];
+        item += "</a>";
+        item += ": <b>" + data[rec]['title'] + "</b>";
+
+        if (data[rec]['doi']) {
+            item += "    [DOI:  " + data[rec]['doi'] + "]";
+        }
+
+        item += "</span><div style='float:right;'>";
+        item += "<i> (" + data[rec]['authors'] + ")</i></li>";
+
+        $('#archiveList').append(item);
+      }
     });
   })
 </script>
