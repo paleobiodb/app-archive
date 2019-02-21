@@ -34,16 +34,16 @@
         var item;
 
         item = "<li><span style='float:left;'>";
-        item += "<a href='/classic/app/archive/view?id=";
-        item += data[rec]['archive_no'] + "'>";
-        item += "Archive " + data[rec]['archive_no'];
-        item += "</a>";
-        item += ": <b>" + data[rec]['title'] + "</b>";
+        item += "<b>" + data[rec]['title'] + "</b>";
 
         if (data[rec]['doi']) {
             item += "    [DOI:  " + data[rec]['doi'] + "]";
         }
 
+        item += "<a href='/classic/app/archive/view?id=";
+        item += data[rec]['archive_no'] + "'>";
+        item += " -- View Details --";
+        item += "</a>";
         item += "</span><div style='float:right;'>";
         item += "<i> (" + data[rec]['authors'] + ")</i></li>";
 
