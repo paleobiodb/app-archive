@@ -49,7 +49,7 @@
 
 	  .success (function (data) {
 		  
-                  data = data[0];
+          data = data[0];
 		  var uri = data['uri_path'] + "?" + data['uri_base'];
 		  
 		  var apiCall = "https://training.paleobiodb.org" + uri;
@@ -58,7 +58,13 @@
 		  item = "<h3 class='uk-card-title'>" + data['title'] + "</h3>";
 		  item += "<p><b>Description: </b>" + data['description'] + "</p>";
 		  item += "<p><b>Archive creator: </b>" + data['authors'] + "</p>";
-		  item += "<p><b>DOI: </b>" + data['doi'] + "</p>";
+
+          if (data['doi']) {
+              item += "<p><b>DOI: </b>" + data['doi'] + "</p>";
+          } else {
+          item += "<p><b>DOI: </b> PENDING</p>";
+          }
+
 		  item += "<p><b>Creation date: </b>" + data['created'] + "</p>";
 		  item += "<p><b>API query string: </b>" + uri + "</p>";
 		  item += "<p><b>PBDB Archive ID Number: </b>" + data['archive_no'] + "</p>";
