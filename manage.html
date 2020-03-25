@@ -61,8 +61,8 @@
         $("#btn").click(function(){
             var archive_no = $("#archive_no").val();
             var doi = $("#doi").val();
-            var url = "https://training.paleobiodb.org/archives/update/" + archive_no;
-
+            var url = "/archives/update/" + archive_no;
+            
             var updates = {doi: doi};
             var payload = JSON.stringify(updates)
 
@@ -73,7 +73,7 @@
 
             else{
                 $.ajax({
-                    url: 'https://training.paleobiodb.org/archives/update/' + archive_no,
+                    url: '/archives/update/' + archive_no,
                     type: 'POST',
                     data: payload,
                     contentType: 'application/json; charset=utf-8',
