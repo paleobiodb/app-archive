@@ -50,9 +50,9 @@
 	  .success (function (data) {
 		  
           data = data[0];
-		  var uri = data['uri_path'] + "?" + data['uri_base'];
+		  var uri = data['uri_path'] + "?" + data['uri_args'];
 		  
-		  var apiCall = "https://paleobiodb.org" + uri;
+		  var apiCall = uri;
 		  var item;
 		  
 		  item = "<h3 class='uk-card-title'>" + data['title'] + "</h3>";
@@ -70,7 +70,7 @@
 		  item += "<p><b>PBDB Archive ID Number: </b>" + data['archive_no'] + "</p>";
 		  
 		  item += "<p uk-margin><a class='uk-button uk-button-primary'";
-		  item += "href='https://paleobiodb.org/archives/retrieve/";
+		  item += "href='/archives/retrieve/";
 		  item += data['archive_no'] + "'>Download Original Archive</a>";
 		  
 		  item += "<p uk-margin><a class='uk-button uk-button-default'";

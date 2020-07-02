@@ -71,7 +71,7 @@
         $("#updateDoi").click(function(){
             var archive_no = $("#archive_no").val();
             var doi = $("#doi").val();
-
+            var url = "/archives/update/" + archive_no;
             var updates = {doi: doi};
             var payload = JSON.stringify(updates)
 
@@ -82,7 +82,11 @@
 
             else {
                 $.ajax({
+<<<<<<< HEAD
                     url: 'https://paleobiodb.org/archives/update/' + archive_no,
+=======
+                    url: '/archives/update/' + archive_no,
+>>>>>>> c2bd5668e5610451b660e7daa2e76c52ad5bdd29
                     type: 'POST',
                     data: payload,
                     contentType: 'application/json; charset=utf-8',
