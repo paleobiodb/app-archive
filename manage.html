@@ -16,21 +16,31 @@
 
 <body>
     <h1 class="uk-heading-line uk-text-center">Manage Data Archives</h1>
+    <br>
+    <center>
+    <p class="uk-text-normal">Add or update the DOI for an archive:</p>
 
     <div id="main">
-        <center>
         <form id="form" method="post">
-            <input type="text" name="archive_no" id="archive_no"
-            placeholder="Archive number"><br>
-            <input type="text" name="doi" id="doi" placeholder="DOI">
+            <input type="text" name="archive_no" id="archive_no" placeholder="PBDB Archive ID"><br>
+            <input type="text" name="doi" id="doi" placeholder="New DOI">
         </form>
         <center>
-            <br><button id="btn">Update metadata</button>
+        <br><button id="updateDoi">Update DOI</button>
+        <!-- <p uk-margin> -->
+        <!-- <button class="uk-button uk-button-primary" id="updateDOI">Update DOI</button> -->
+        <hr>
+
+	<p class="uk-text-normal">Remove database record and archive file:</p>
+        <form id="form" method="post">
+            <input type="text" name="delete_archive_no" id="delete_archive_no" placeholder="PBDB Archive ID"><br>
+        </form>
+        <center>
+        <br><button id="deleteArchive">Delete archive</button>
     </div>
 	<br><br>
 	<center>
-	<a class="uk-link-muted"
-	    href="/classic/app/archive/list"> Go </a> to archive list</a>
+	<a class="uk-link-muted" href="/classic/app/archive/list"> Go </a> to archive list</a>
 	</center>
 </body>
 
@@ -58,22 +68,21 @@
     };
 
     $(document).ready(function(){
-        $("#btn").click(function(){
+        $("#updateDoi").click(function(){
             var archive_no = $("#archive_no").val();
             var doi = $("#doi").val();
-            var url = "https://training.paleobiodb.org/archives/update/" + archive_no;
 
             var updates = {doi: doi};
             var payload = JSON.stringify(updates)
 
-            if(archive_no=='')
+            if(archive_no == '')
             {
                 alert("An archive number must be specified");
             }
 
-            else{
+            else {
                 $.ajax({
-                    url: 'https://training.paleobiodb.org/archives/update/' + archive_no,
+                    url: 'https://paleobiodb.org/archives/update/' + archive_no,
                     type: 'POST',
                     data: payload,
                     contentType: 'application/json; charset=utf-8',
@@ -87,6 +96,31 @@
                         alert('An error occurred (' + textStatus + '-' + error + ')');                
                     }
                 });
+            }
+        });
+
+        $("#deleteArchive").click(function(){
+            var delete_archive_no = $("#delete_archive_no").val();
+
+            if(delete_archive_no == '')
+            {
+                alert("An archive number must be specified");
+            }
+
+            else {
+                if (confirm("WARNING. Archive deletion is permanent, continue?")) {
+                    $.ajax({
+                        url: 'https://paleobiodb.org/archives/delete/' + delete_archive_no,
+                        type: 'GET',
+                        success: function(data) {
+                            clearForm(form);
+                            alert('Archive deleted');                
+                        },
+                        error: function (xhr, textStatus, error) {
+                            alert('An error occurred (' + textStatus + '-' + error + ')');                
+                        }
+                    });
+                }
             }
         });
     });
