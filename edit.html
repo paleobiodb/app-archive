@@ -1,0 +1,63 @@
+  <!-- UIkit CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
+	<!-- UIkit JS -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
+  <!-- JQuery -->
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"></script>
+
+   <div class="uk-padding uk-width-1-8@s">
+
+      <h3 class='uk-card-title' id='dar_header'>Data Archive </h3>
+      
+      <form name='dar_edit' onsubmit="event.preventDefault(); page_app.doSave()" action="none">
+      <input type="hidden" id="dar_id", name="archive_id" value="">
+      <table cellpadding='5'>
+      
+      <tr><td><b>Title:</b></td>
+      <td><input type='text' id='dar_title' name='title' size='80'/></td></tr>
+
+      <tr><td><b>Description:</b></td>
+      <td><textarea rows='2' cols='80' id='dar_description' name='description'></textarea></td></tr>
+      
+      <tr><td><b>Author(s):</b></td>
+      <td><input type='text' id='dar_authors' name='authors' size='80'/></td></tr>
+      
+      <tr><td><b>DOI:</b></td>
+      <td id='dar_doi'></td>
+      
+      <tr><td><b>Data URI:</b></td>
+      <td><input type='text' id='dar_uri' size='80' disabled/></td></tr>
+      
+      <tr><td><b>Creation date:</b></td>
+      <td id='dar_created'></td>
+      
+      <tr><td><b>Modification date:</b></td>
+      <td id='dar_modified'></td>
+
+    </table>
+
+    <p><b><input type="checkbox" id="dar_public" name="is_public">&nbsp;Make this archive publicly available</b></p>
+    
+    <p><button type='submit' name='save'>Save changes</button>
+    <button type='button' name='cancel' onclick='page_app.doCancel()'>Cancel</button>
+    &nbsp;&nbsp;&nbsp;
+    <button type='button' name='download' onclick='page_app.doDownload()'>Download archive contents</button></p>
+
+    <p>&nbsp;</p>
+    
+    <p><button type='button' name='delete'>Delete this archive</button></p>
+    
+    </form>
+    
+    
+<script src="%%app_resources%%/edit.js"></script>
+<script language="JavaScript">
+// This file is processed by the code in HTMLBuilder.pm when before it is sent to the client
+// web browser, and the %%...%% literals are replaced by values known to the Classic environment.
+
+var page_app = new DataArchiveEditor('%%data_url%%', '%%enterer_id%%', %%params%%);
+//document.addEventListener("DOMContentLoaded", page_app.loadRecord, false);
+page_app.loadRecord();
+</script>
+
