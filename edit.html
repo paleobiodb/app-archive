@@ -6,58 +6,78 @@
   <!-- JQuery -->
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"></script>
 
-   <div class="uk-padding uk-width-1-8@s">
-
-      <h3 class='uk-card-title' id='dar_header'>Data Archive </h3>
-      
-      <form name='dar_edit' onsubmit="event.preventDefault(); page_app.doSave()" action="none">
-      <input type="hidden" id="dar_id", name="archive_id" value="">
-      <table cellpadding='5'>
-      
-      <tr><td><b>Title:</b></td>
-      <td><input type='text' id='dar_title' name='title' size='80'/></td></tr>
-
-      <tr><td><b>Description:</b></td>
-      <td><textarea rows='2' cols='80' id='dar_description' name='description'></textarea></td></tr>
-      
-      <tr><td><b>Author(s):</b></td>
-      <td><input type='text' id='dar_authors' name='authors' size='80'/></td></tr>
-      
-      <tr><td><b>DOI:</b></td>
-      <td id='dar_doi'></td>
-      
-      <tr><td><b>Data URI:</b></td>
-      <td><input type='text' id='dar_uri' size='80' disabled/></td></tr>
-      
-      <tr><td><b>Creation date:</b></td>
-      <td id='dar_created'></td>
-      
-      <tr><td><b>Modification date:</b></td>
-      <td id='dar_modified'></td>
-
-    </table>
-
-    <p><b><input type="checkbox" id="dar_public" name="is_public">&nbsp;Make this archive publicly available</b></p>
+<div style="margin-left: 50px">
+  
+  <h3 id='dar_header'>Data Archive </h3>
+  
+  <form name='dar_edit' onsubmit="event.preventDefault(); pageapp.doSave()">
+  <input type="hidden" id="dar_id", name="archive_id" value="">
+  
+  <table cellpadding='5' width='100%'>
     
-    <p><button type='submit' name='save'>Save changes</button>
-    <button type='button' name='cancel' onclick='page_app.doCancel()'>Cancel</button>
-    &nbsp;&nbsp;&nbsp;
-    <button type='button' name='download' onclick='page_app.doDownload()'>Download archive contents</button></p>
+    <tr><td><b>Title:</b></td>
+    <td><input type='text' id='dar_title' name='title' size='80'/></td></tr>
+    
+    <tr><td><b>Description:</b></td>
+    <td><textarea rows='2' cols='80' id='dar_description' name='description'></textarea></td></tr>
+    
+    <tr><td><b>Author(s):</b></td>
+    <td><input type='text' id='dar_authors' name='authors' size='80'/></td></tr>
+    
+    <tr><td><b>DOI:</b></td>
+    <td id='dar_doi'><input type='text' name='doi' size='80'></td>
+    
+    <tr><td><b>Data URI:</b></td>
+    <td><input type='text' id='dar_uri' size='80' disabled/></td></tr>
+    
+    <tr><td><b>Viewable:</b></td>
+    <td><input type="checkbox" id="dar_public" name="is_public">&nbsp;<b>Public</b></td></tr>
+    
+    <tr><td><b>Data archived:</b></td>
+    <td id='dar_fetched'></td></tr>
+    
+    <tr><td><b>Metadata created:</b></td>
+    <td id='dar_created'></td></tr>
+    
+    <tr><td><b>Metadata modified:</b></td>
+    <td id='dar_modified'></td>
+    
+    <tr><td><b>Record created by:</b></td>
+    <td id='dar_authent'></td></tr>
+    
+  </table>
+  
+  <div id='dar_controls' style='margin-top: 30px;'>
+    <p><button type='submit' name='save' style='background-color: lightblue;'>Save changes</button>
+    <button type='button' name='cancel' onclick='pageapp.doCancel()'>Cancel</button>
+    <button type='button' name='delete' onclick='pageapp.doDelete()'
+     style='margin-left: 100px; background-color: lightcoral;'>Delete this archive</button>
+  </div>
 
-    <p>&nbsp;</p>
+  <div id='dar_data' style='margin-top: 30px'>
+    <p><button type='button' id='btn_download' onclick='pageapp.doDownload()'>
+    Download archived data</button>
+    <span style="margin-left: 100px">
+    <button type='button' id='btn_generate' onclick='pageapp.doRetrieve()'>
+    Download current equivalent dataset
+    </button></span></p>
+  </div>
     
-    <p><button type='button' name='delete'>Delete this archive</button></p>
+  </form>
+
+</div>
     
-    </form>
-    
-    
+<!--
+The source you are looking at is processed by classic/lib/PBDB/HTMLBuilder.pm
+before it is sent to the web browser, and all %%...%% literals are replaced
+by values known to the Classic environment.
+-->
+
 <script src="%%app_resources%%/edit.js"></script>
 <script language="JavaScript">
-// This file is processed by the code in HTMLBuilder.pm when before it is sent to the client
-// web browser, and the %%...%% literals are replaced by values known to the Classic environment.
 
-var page_app = new DataArchiveEditor('%%data_url%%', '%%enterer_id%%', %%params%%);
-//document.addEventListener("DOMContentLoaded", page_app.loadRecord, false);
-page_app.loadRecord();
+var pageapp = new DataArchiveEditor('%%data_url%%', '%%enterer_id%%', %%params%%);
+pageapp.initialize();
+
 </script>
 

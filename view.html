@@ -1,10 +1,3 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PBDB Data Archive</title>
   <!-- UIkit CSS -->
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
 	<!-- UIkit JS -->
@@ -12,48 +5,55 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
   <!-- JQuery -->
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"></script>
-</head>
 
-<body>
     <div class="uk-padding uk-width-1-8@s">
         <ul class="uk-list" id="archiveDetail">
     </div>
 
 <center>
-<a class="uk-link-muted"
-    href="/classic/app/archive/list"> Return</a> to archive list</a>
+<a class="uk-link-muted" href="/classic/app/archive/list"> Return</a> to archive list</a>
 </center>
 
-</body>
-
 <script language="JavaScript">
-  $(document).ready(function(){
-      var parameters = location.search.substring(1).split("&");
-      var temp = parameters[0].split("=");
+  var params = %%params%%;
+  
+  $(document).ready(function() {
+      var params = %%params%%;
+      var paramstring;
 
-      var param_name = temp[0];
-      var param_value = unescape(temp[1]);
-      
-      if ( param_name != 'id' && param_name != 'doi' )
+      if ( params['id'] )
       {
-	  var error_text = "<h3 class='uk-card-title'>Bad parameter '" + param_name + "'</h3>";
+	  paramstring = 'id=' + params['id'];
+      }
+
+      else if ( params['doi'] )
+      {
+	  paramstring = 'doi=' + params['doi'];
+      }
+      
+      else
+      {
+	  var error_text = "<h3 class='uk-card-title'>You must specify either id= or doi=</h3>";
 	  
 	  $('#archiveDetail').append(error_text);
 	  return;
       }
       
       $.ajax( {
-          url: "/archives/view/" + param_value,
+          url: "%%data_url%%archives/single.json?" + paramstring + '&show=crmod',
           dataType: "json"
       })
-
+    
 	  .success (function (data) {
 		  
-          data = data[0];
-		  var uri = data['uri_path'] + "?" + data['uri_args'];
-		  
-		  var apiCall = uri;
-		  var item;
+              data = data.records[0];
+	      var uri = data['uri_path'] + "?" + data['uri_args'];
+	      
+	      var apiCall = uri;
+	      var item;
+
+	      var oid = data['oid'].substr(4);
+	      
 		  
 		  item = "<h3 class='uk-card-title'>" + data['title'] + "</h3>";
 		  item += "<p><b>Description: </b>" + data['description'] + "</p>";
@@ -65,13 +65,13 @@
           item += "<p><b>DOI: </b> Pending</p>";
           }
 
-		  item += "<p><b>Creation date: </b>" + data['created'] + "</p>";
+		  item += "<p><b>Creation date: </b>" + data['dcr'] + "</p>";
 		  item += "<p><b>API query string: </b>" + uri + "</p>";
-		  item += "<p><b>PBDB Archive ID Number: </b>" + data['archive_no'] + "</p>";
+		  item += "<p><b>PBDB Archive ID Number: </b>" + oid + "</p>";
 		  
 		  item += "<p uk-margin><a class='uk-button uk-button-primary'";
 		  item += "href='/archives/retrieve/";
-		  item += data['archive_no'] + "'>Download Original Archive</a>";
+		  item += oid + "'>Download Original Archive</a>";
 		  
 		  item += "<p uk-margin><a class='uk-button uk-button-default'";
 		  item += "href='" + apiCall + "'>Generate Updated Dataset</a>";

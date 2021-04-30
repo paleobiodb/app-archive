@@ -14,7 +14,7 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
     if ( data_url.match( /^\// ) && window.location.origin )
 	data_url = window.location.origin + data_url;
 
-    var editable_fields = ['title', 'authors', 'description', 'is_public'];
+    var editable_fields = ['title', 'authors', 'description', 'doi', 'is_public'];
     
     var edit_record;
     var archive_id;
@@ -23,7 +23,7 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
     // The following function initializes this application controller object.  It is exported as
     // a method, so that it can be called once the web page is fully loaded.
     
-    function loadRecord ()
+    function initialize ()
     {
 	archive_id = parameters['id'];
 	
@@ -32,21 +32,29 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	    if ( /^\d/.test(archive_id) ) archive_id = 'dar:' + archive_id;
 	    
 	    $.ajax( {
-		url: data_url + "archives/single.json?show=crmod&id=" + archive_id,
+		url: data_url + "archives/single.json?show=crmod,entname&id=" + archive_id,
 		dataType: "json"
 	    })
 		.success (fillForm)
 	    	.error (loadError);
 	}
 	
-	else
+	else if ( archive_id )
 	{
 	    setInnerHTML('dar_header', "Data Archive: invalid parameter '" + archive_id + "'");
 	    clearForm();
 	}
+
+	else
+	{
+	    setInnerHTML('dar_header', "Data Archive: no archive identifier was specified");
+	    clearForm();
+	}
     }
     
-    this.loadRecord = loadRecord;
+    this.initialize = initialize;
+
+    // Fill the form with data retrieved from the server.
 
     function fillForm (data) {
 	
@@ -58,7 +66,7 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	numeric_id = archive_id;
 	if ( /^dar:/.test(numeric_id) ) numeric_id = numeric_id.substr(4);
 	
-	setInnerHTML('dar_header', "Data Archive " + archive_id);
+	setInnerHTML('dar_header', "Data Archive " + numeric_id);
 	setElementValue('dar_id', archive_id);
 	setElementValue('dar_title', edit_record['title']);
 	setElementValue('dar_description', edit_record['description']);
@@ -73,7 +81,9 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	
 	if ( edit_record['doi'] )
 	{
-	    doi_content =  "<td><input type='text' name='doi' disabled>" + edit_record['doi'] + "</input>";
+	    doi_content =  '<td><input type="text" name="doi" size="60" value="' + edit_record['doi'] + '" disabled>';
+	    if ( edit_record.prm == 'admin' )
+		doi_content = doi_content + '&nbsp;<button name="change_doi" type="button" onclick="pageapp.enterDOI()">Change DOI</button>';
 	    disableElement('dar_title', true);
 	    disableElement('dar_authors', true);
 	    disableElement('dar_public', true);
@@ -81,17 +91,19 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	
 	else
 	{
-	    if ( edit_record.status == 'pending' )
+	    if ( edit_record.sta == 'pending' || edit_record.status == 'pending' )
 	    {
 		doi_content = 'DOI has been requested&nbsp;&nbsp;' +
-		    "<button name='cancel_request' type='button'>Cancel request</button>";
+		    "<button name='cancel_request' type='button' onclick='pageapp.requestDOI(\"cancel\")'>Cancel request</button>";
+		if ( edit_record.prm == 'admin' )
+		    doi_content = doi_content + "&nbsp;<button name='enter_doi' type='button' onclick='pageapp.enterDOI()'>Enter DOI</button>";
 	    }
 	    
             else
 	    {
-		doi_content = "<button name='request' type='button'>Request a DOI for this data archive</button>";
+		doi_content = "<button name='doi_request' type='button' onclick='pageapp.requestDOI(\"send\")'>Request a DOI for this data archive</button>";
             }
-
+	    
 	    disableElement('dar_title', false);
 	    disableElement('dar_authors', false);
 	    disableElement('dar_public', false);
@@ -99,13 +111,44 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	
 	setInnerHTML('dar_doi', doi_content);
 	
+	setInnerHTML('dar_fetched', edit_record['fetched']);
 	setInnerHTML('dar_created', edit_record['dcr']);
 	setInnerHTML('dar_modified', edit_record['dmd']);
-    }
+	
+	if ( edit_record['ent'] )
+	{
+	    var authent = edit_record['ent'];
 
+	    if ( edit_record['ath'] && edit_record['ath'] != edit_record['ent'] )
+		authent = authent + ' (' + edit_record['ath'] + ')';
+	    
+	    setInnerHTML('dar_authent', authent);
+	}
+    }
+    
+    // Respond to an error while trying to load the metadata for the requested archive.
+    
     function loadError ( xhr, textStatus, error )
     {
-	setElementValue('dar_header', "Data Archive " + archive_id + ": " + textStatus);
+	// If the specified archive could not be fetched because the user is not logged in, redirect
+	// to the login page.
+	
+	if ( xhr.status == "401" && ! enterer_id )
+	{
+	    var current_url = document.URL.replace(/^https?:\/\/[^\/]+/, '');
+
+	    if ( current_url.match(/^\/[a-z]/) )
+	    {
+		var goto_url = "/login?redirect_after=" + encodeURIComponent(current_url);
+		location.assign(goto_url);
+		return;
+	    }
+	}
+	
+	// Otherwise, display the error.
+	
+	setInnerHTML('dar_header', '<span style="color: red">CANNOT EDIT Data Archive ' +
+		     archive_id + ": " + error + '</span>');
 	clearForm();
     }
     
@@ -117,8 +160,10 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	setElementValue('dar_authors', '');
 	setElementValue('dar_uri', '');
 	setInnerHTML('dar_doi', '');
+	setInnerHTML('dar_fetched', '');
 	setInnerHTML('dar_created', '');
 	setInnerHTML('dar_modified', '');
+	setInnerHTML('dar_authent', '');
     }
     
     function doSave ( )
@@ -130,8 +175,8 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
 	{
 	    var old_value = edit_record[field_name];
 	    var new_value = getFormValue('dar_edit', field_name);
-
-	    if ( old_value != new_value )
+	    
+	    if ( new_value != undefined && new_value != old_value )
 	    {
 		params[field_name] = new_value;
 		param_count++;
@@ -172,9 +217,106 @@ function DataArchiveEditor( data_url, enterer_id, parameters )
     {
 	if ( numeric_id )
 	    window.open('/archives/retrieve/' + numeric_id);
+	else
+	    window.alert("This archive record does not have a valid numeric ID.");
+    }
+    
+    this.doDownload = doDownload;
+
+    function doRetrieve ( )
+    {
+	var retrieval_uri = $('#dar_uri').val();
+	
+	if ( retrieval_uri && /^[\/]data/.test(retrieval_uri) )
+	    window.open(retrieval_uri);
+	else
+	    window.alert("This archive record does not contain a valid Data URI.");
+    }
+    
+    this.doRetrieve = doRetrieve;
+    
+    // The following function allows for sending or canceling a DOI request.
+    
+    function requestDOI ( which )
+    {
+	var request_url;
+	var message;
+	
+	if ( which == 'send' && window.confirm("Do you want to request a DOI for this data archive?") )
+	{
+	    request_url = '/classic/requestDOI?id=' + archive_id;
+	    message = "DOI has been requested.";
+	}
+	
+	else if ( which == 'cancel' && window.confirm("Do you want to cancel the DOI request for this data archive?") )
+	{
+	    request_url = '/classic/requestDOI?operation=cancel&id=' + archive_id;
+	    message = "DOI request has been canceled.";
+	}
+	
+	if ( request_url )
+	{
+	    $.ajax( {
+		method: "GET",
+		url: request_url,
+	    })
+		.success(function ( data ) {
+		    window.alert(message);
+		})
+	    
+		.error(function(xhr, textStatus, errorString) {
+		    window.alert("Failed: " + xhr.status + " " + textStatus);
+		});
+	}
     }
 
-    this.doDownload = doDownload;
+    this.requestDOI = requestDOI;
+
+    // The following function allows an administrator to enter or change a DOI.
+    
+    function enterDOI ( )
+    {
+	var doi_value = edit_record['doi'] || '';
+	setInnerHTML('dar_doi', '<td><input type="text" name="doi" size="60" value="' +
+		     doi_value + '">');
+    }
+    
+    this.enterDOI = enterDOI;
+
+    // Delete this archive
+
+    function doDelete ( )
+    {
+	if ( edit_record['doi'] )
+	{
+	    window.alert("This archive cannot be deleted, because it has been issued a DOI.");
+	    return;
+	}
+
+	else if ( edit_record['sta'] == 'pending' || edit_record['status'] == 'pending' )
+	{
+	    window.alert("This archive cannot be deleted, because a DOI has been requested for it.");
+	    return;
+	}
+	
+	else if ( window.confirm("Do you want to delete this archive? The operation cannot be undone.") )
+	{
+	    $.ajax( {
+		method: "GET",
+		url: data_url + "archives/delete.json?id=" + archive_id
+	    })
+		.success(function ( data ) {
+		    window.alert("Archive was deleted.");
+		    window.open('/app/archive/list', '_self');
+		})
+	    
+		.error(function(xhr, textStatus, errorString) {
+		    window.alert("Failed: " + xhr.status + " " + textStatus);
+		});
+	}
+    }
+    
+    this.doDelete = doDelete;
     
     // This function retrieves the DOM object with the specified id, and leaves a reasonable
     // message on the console if the program contains a typo and the requested element does not

@@ -1,57 +1,61 @@
-<!DOCTYPE html>
-<html>
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>PBDB Data Archive</title>
   <!-- UIkit CSS -->
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
-	<!-- UIkit JS -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
-  <!-- JQuery -->
-  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.4.min.js"></script>
-</head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/css/uikit.min.css" />
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.22/datatables.min.css"/>
+  <link rel="stylesheet" href="%%app_resources%%/styles.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/uikit/3.0.0-beta.35/js/uikit-icons.min.js"></script>
+  <script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.22/datatables.min.js"></script>
+  <script src="%%app_resources%%/list.js"></script>
+<script language="JavaScript">
+  var data_url = '%%data_url%%';
+</script>
 
 <body>
 
   <h1 class="uk-heading-line uk-text-center">Data Archives</h1>
+  <hr/>
+  <ul class="nav nav-tabs">
+    <li id="PubTab" role="presentation" class="nav-link active">
+        <a href="#public" aria-controls="public" role="tab" data-toggle="tab">Public</a>
+    </li>
+    <li id="PrivTab" role="presentation" class="nav-link active">
+      <a href="#private" aria-controls="private" role="tab" data-toggle="tab">Private</a>
+    </li>
+  </ul>
+  <ul class="nav nav-tabs">
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="public">
+        <nav aria-label="archive-List-Results">
+          <div class="uk-list uk-list-striped" id="archiveListPublic"></div>
+        </nav>
+      </div>
+    </div>
+  </ul>
+  <!-- <div class="form-popup" id="myForm"> -->
+    <!-- <form action="/action_page.php" class="form-container">
+      <h1>Login</h1>
 
-  <ul class="uk-list uk-list-striped" id="archiveList">
+      <label for="email"><b>Email</b></label>
+      <input type="text" placeholder="Enter Email" name="email" required>
 
+      <label for="psw"><b>Password</b></label>
+      <input type="password" placeholder="Enter Password" name="psw" required>
+
+      <button type="submit" class="btn">Login</button>
+      <button type="submit" class="btn cancel" onclick="closeForm()">Close</button>
+    </form>
+  </div> -->
+  <div class="form-popup hideform" id="myForm">
+    <button id="close" style="float: right;" onclick="CloseDetails()">X</button>
+    <form action="/action_page.php" class="form-container">
+      <div id="archiveSelID"></div>
+    </form>
+    <div>
+      <button id = "OrigArch" type="submit" class="btn" onclick="">Download Original Archive</button>
+      <button id = "UpdateArch" type="submit" class="btn cancel" onclick="">Generate Updated Dataset</button>
+    </div>
+  </div>
 </body>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-
-    $.ajax( {
-      url: "/archives/list",
-      dataType: "json"
-    })
-    .done (function (data) {
-      for (var rec in data) {
-        var item;
-
-        item = "<li><span style='float:left;'>";
-        item += "<b>" + data[rec]['title'] + "</b>";
-
-        if (data[rec]['doi']) {
-            item += "    [DOI:  " + data[rec]['doi'] + "]";
-        }
-
-        item += "</span><div style='float:right;'>";
-        item += "<i> (" + data[rec]['authors'] + ")</i> - ";
-        item += "<a href='/classic/app/archive/view?id=";
-        item += data[rec]['archive_no'] + "'>";
-        item += "  View Details ";
-        item += "</a>";
-        item += "</li>";
-
-        $('#archiveList').append(item);
-      }
-    });
-  })
-</script>
    
 </html>
+
